@@ -1,4 +1,34 @@
+# Dependencies
 node_modules
+/node_modules
+/backend/node_modules
+
+# Production builds
 dist
-*.local
+/dist
+build
+
+# Environment Variables & Secrets
+.env
+backend/.env
+.env.local
+.env.*.local
+
+# Uploads & Media
+/backend/uploads/*
+!/backend/uploads/.gitkeep
+uploads
+
+# Scratch & Temporary Test Files
+scratch/
+backend/scratch/
+
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System Files
+.DS_Store
+Thumbs.db
