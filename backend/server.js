@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import passport from './config/passport.js';
 import authRoutes from './routes/authRoutes.js';
 import noteRoutes from './routes/noteRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
@@ -28,7 +29,6 @@ const PORT = process.env.PORT || 5000;
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests from localhost, 127.0.0.1, or local network IPs (e.g., mobile dev)
         callback(null, true);
     },
     credentials: true,
@@ -39,6 +39,7 @@ app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+app.use(passport.initialize());
 
 // Static uploads folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

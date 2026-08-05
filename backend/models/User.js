@@ -7,7 +7,14 @@ class UserModel {
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING id, first_name, last_name, username, email, profile_image, email_verified, created_at, updated_at;
         `;
-        const values = [first_name, last_name, username, email, password_hash, verification_token];
+        const values = [
+            first_name || 'User',
+            last_name || '',
+            username,
+            email,
+            password_hash,
+            verification_token
+        ];
         const res = await pool.query(query, values);
         return res.rows[0];
     }

@@ -10,6 +10,15 @@ export const AuthProvider = ({ children }) => {
 
     const fetchUserProfile = async () => {
         try {
+            // Check for OAuth token in URL parameters first
+            const searchParams = new URLSearchParams(window.location.search);
+            const urlToken = searchParams.get('token');
+            if (urlToken) {
+                ApiClient.setTokens(urlToken, null);
+                // Clean up URL parameter cleanly
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
             const token = ApiClient.getToken();
             if (!token) {
                 setLoading(false);

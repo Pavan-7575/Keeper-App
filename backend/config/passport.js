@@ -2,10 +2,16 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import UserModel from '../models/User.js';
 import OAuthModel from '../models/OAuth.js';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env'), override: true });
+dotenv.config({ path: path.resolve(__dirname, '../.env'), override: true });
 
 // Google Strategy
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_CLIENT_ID !== 'your_google_client_id') {
@@ -14,29 +20,25 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.
             {
                 clientID: process.env.GOOGLE_CLIENT_ID,
                 clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-                callbackURL: '/api/auth/google/callback',
+                callbackURL: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/google/callback`,
             },
             async (accessToken, refreshToken, profile, done) => {
                 try {
                     const googleId = profile.id;
                     const email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
-                    const firstName = profile.name ? profile.name.givenName : 'Google';
-                    const lastName = profile.name ? profile.name.familyName : 'User';
-                    const profileImage = profile.photos && profile.photos[0] ? profile.photos[0].value : null;
+                    const firstName = (profile.name && profile.name.givenName) || profile.displayName || 'Google';
+                    const lastName = (profile.name && profile.name.familyName) || '';
 
-                    // 1. Check if OAuth account exists
                     let oauthAccount = await OAuthModel.findOAuthAccount('google', googleId);
                     let user;
 
                     if (oauthAccount) {
                         user = await UserModel.findById(oauthAccount.user_id);
                     } else {
-                        // 2. Check if user with same email exists
                         if (email) {
                             user = await UserModel.findByEmail(email);
                         }
 
-                        // 3. Create user if not exists
                         if (!user) {
                             const username = `user_${Date.now()}`;
                             user = await UserModel.createUser({
@@ -50,7 +52,6 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.
                             await UserModel.updateEmailVerified(user.id);
                         }
 
-                        // Link OAuth account
                         await OAuthModel.linkOAuthAccount(user.id, 'google', googleId);
                     }
 
@@ -61,6 +62,9 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.
             }
         )
     );
+    console.log('✅ Google OAuth strategy registered successfully.');
+} else {
+    console.log('⚠️ Google OAuth is disabled because GOOGLE_CLIENT_ID is not configured in .env');
 }
 
 // Facebook Strategy
@@ -70,16 +74,15 @@ if (process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET && process.en
             {
                 clientID: process.env.FACEBOOK_APP_ID,
                 clientSecret: process.env.FACEBOOK_APP_SECRET,
-                callbackURL: '/api/auth/facebook/callback',
+                callbackURL: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/facebook/callback`,
                 profileFields: ['id', 'emails', 'name', 'picture.type(large)'],
             },
             async (accessToken, refreshToken, profile, done) => {
                 try {
                     const facebookId = profile.id;
                     const email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
-                    const firstName = profile.name ? profile.name.givenName : 'Facebook';
-                    const lastName = profile.name ? profile.name.familyName : 'User';
-                    const profileImage = profile.photos && profile.photos[0] ? profile.photos[0].value : null;
+                    const firstName = (profile.name && profile.name.givenName) || profile.displayName || 'Facebook';
+                    const lastName = (profile.name && profile.name.familyName) || '';
 
                     let oauthAccount = await OAuthModel.findOAuthAccount('facebook', facebookId);
                     let user;
