@@ -16,6 +16,7 @@ import userRoutes from './routes/userRoutes.js';
 import { apiLimiter } from './middlewares/rateLimiter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { initializeDatabase } from './database/initDb.js';
+import NoteModel from './models/Note.js';
 
 dotenv.config();
 
@@ -66,6 +67,15 @@ app.use(errorHandler);
 const startServer = async () => {
     try {
         await initializeDatabase();
+        
+        // Auto-clean trash notes older than 30 days on startup
+        await NoteModel.cleanupExpiredTrash(30).catch((err) => console.error('Trash cleanup error:', err));
+        
+        // Schedule periodic trash cleanup every 12 hours
+        setInterval(() => {
+            NoteModel.cleanupExpiredTrash(30).catch((err) => console.error('Trash cleanup error:', err));
+        }, 12 * 60 * 60 * 1000);
+
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT} (0.0.0.0)`);
         });

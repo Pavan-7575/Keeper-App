@@ -186,7 +186,7 @@ class NoteModel {
         if (!original) return null;
 
         return await this.createNote(userId, {
-            title: `${original.title} (Copy)`,
+            title: original.title,
             content: original.content,
             color: original.color,
             is_pinned: original.is_pinned,
@@ -210,6 +210,19 @@ class NoteModel {
         `;
         const res = await pool.query(sql, [userId]);
         return res.rows[0];
+    }
+
+    static async cleanupExpiredTrash(days = 30) {
+        const sql = `
+            DELETE FROM notes
+            WHERE is_deleted = TRUE
+              AND updated_at < NOW() - INTERVAL '1 day' * $1;
+        `;
+        const res = await pool.query(sql, [days]);
+        if (res.rowCount > 0) {
+            console.log(`🧹 Auto-cleaned ${res.rowCount} trash note(s) older than ${days} days.`);
+        }
+        return res.rowCount;
     }
 }
 

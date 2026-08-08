@@ -1,14 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../services/api';
-import { LogIn, Mail, Lock, Globe } from 'lucide-react';
+import { LogIn, Mail, Lock, Globe, Eye, EyeOff } from 'lucide-react';
 
 function LoginPage({ setCurrentTab }) {
     const { login } = useAuth();
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const errParam = searchParams.get('error');
+        if (errParam) {
+            if (errParam === 'facebook_not_configured') {
+                setError('Facebook OAuth is not configured on the server. Please set FACEBOOK_APP_ID and FACEBOOK_APP_SECRET in backend/.env.');
+            } else if (errParam === 'google_not_configured') {
+                setError('Google OAuth is not configured on the server. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in backend/.env.');
+            } else if (errParam === 'oauth_failed') {
+                setError('Social authentication failed or was cancelled.');
+            } else if (errParam === 'oauth_error') {
+                setError('An unexpected error occurred during social login.');
+            } else {
+                setError('Authentication failed. Please try again.');
+            }
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -34,12 +54,13 @@ function LoginPage({ setCurrentTab }) {
 
             {error && <div className="error-alert">{error}</div>}
 
-            <form onSubmit={handleSubmit} className="auth-form">
+            <form onSubmit={handleSubmit} className="auth-form" autoComplete="off">
                 <div className="form-group">
                     <label>Email or Username</label>
                     <input
                         type="text"
                         required
+                        autoComplete="off"
                         placeholder="Enter email or username"
                         value={identifier}
                         onChange={(e) => setIdentifier(e.target.value)}
@@ -56,13 +77,37 @@ function LoginPage({ setCurrentTab }) {
                             Forgot?
                         </span>
                     </div>
-                    <input
-                        type="password"
-                        required
-                        placeholder="Enter password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                    <div style={{ position: 'relative', width: '100%' }}>
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            required
+                            autoComplete="new-password"
+                            placeholder="Enter password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            style={{ paddingRight: '40px', width: '100%' }}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            title={showPassword ? "Hide password" : "Show password"}
+                            style={{
+                                position: 'absolute',
+                                right: '10px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: 'var(--text-muted)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '4px',
+                            }}
+                        >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" className="btn-primary" disabled={loading}>

@@ -117,6 +117,9 @@ if (process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET && process.en
             }
         )
     );
+    console.log('✅ Facebook OAuth strategy registered successfully.');
+} else {
+    console.log('⚠️ Facebook OAuth is disabled because FACEBOOK_APP_ID is not configured in .env');
 }
 
 passport.serializeUser((user, done) => done(null, user.id));

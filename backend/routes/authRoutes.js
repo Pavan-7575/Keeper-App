@@ -31,12 +31,22 @@ router.get('/verify-email', verifyEmail);
 router.post('/forgot-password', authLimiter, forgotPasswordValidationRules, handleValidationErrors, forgotPassword);
 router.post('/reset-password', authLimiter, resetPasswordValidationRules, handleValidationErrors, resetPassword);
 
+// Helper to ensure OAuth strategy is registered
+const ensureOAuthStrategy = (strategyName, errorKey) => (req, res, next) => {
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    if (!passport._strategies[strategyName]) {
+        return res.redirect(`${clientUrl}?error=${errorKey}`);
+    }
+    next();
+};
+
 // OAuth Google Routes
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', ensureOAuthStrategy('google', 'google_not_configured'), passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get(
     '/google/callback',
-    passport.authenticate('google', { failureRedirect: '/login?error=oauth_failed', session: false }),
+    ensureOAuthStrategy('google', 'google_not_configured'),
+    passport.authenticate('google', { failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:5173'}?error=oauth_failed`, session: false }),
     async (req, res) => {
         try {
             const user = req.user;
@@ -52,17 +62,18 @@ router.get(
             const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
             res.redirect(`${clientUrl}?token=${accessToken}`);
         } catch (error) {
-            res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/login?error=oauth_error`);
+            res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?error=oauth_error`);
         }
     }
 );
 
 // OAuth Facebook Routes
-router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+router.get('/facebook', ensureOAuthStrategy('facebook', 'facebook_not_configured'), passport.authenticate('facebook', { scope: ['email'] }));
 
 router.get(
     '/facebook/callback',
-    passport.authenticate('facebook', { failureRedirect: '/login?error=oauth_failed', session: false }),
+    ensureOAuthStrategy('facebook', 'facebook_not_configured'),
+    passport.authenticate('facebook', { failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:5173'}?error=oauth_failed`, session: false }),
     async (req, res) => {
         try {
             const user = req.user;
@@ -78,7 +89,7 @@ router.get(
             const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
             res.redirect(`${clientUrl}?token=${accessToken}`);
         } catch (error) {
-            res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/login?error=oauth_error`);
+            res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?error=oauth_error`);
         }
     }
 );

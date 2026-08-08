@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import ApiClient, { SERVER_BASE_URL } from '../../services/api';
-import { Camera, Lock, User, CheckCircle2 } from 'lucide-react';
+import { Camera, Lock, User, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 function ProfilePage() {
     const { user, updateUserState } = useAuth();
@@ -16,6 +16,10 @@ function ProfilePage() {
         new_password: '',
         confirm_password: '',
     });
+
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const [profileMsg, setProfileMsg] = useState({ type: '', text: '' });
     const [passwordMsg, setPasswordMsg] = useState({ type: '', text: '' });
@@ -197,35 +201,107 @@ function ProfilePage() {
                     </div>
                 )}
 
-                <form onSubmit={handlePasswordSubmit} className="auth-form" style={{ marginTop: '16px' }}>
+                <form onSubmit={handlePasswordSubmit} className="auth-form" style={{ marginTop: '16px' }} autoComplete="off">
                     <div className="form-group">
                         <label>Current Password</label>
-                        <input
-                            type="password"
-                            required
-                            value={passwordData.current_password}
-                            onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
-                        />
+                        <div style={{ position: 'relative', width: '100%' }}>
+                            <input
+                                type={showCurrentPassword ? 'text' : 'password'}
+                                required
+                                autoComplete="current-password"
+                                value={passwordData.current_password}
+                                onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
+                                style={{ paddingRight: '40px', width: '100%' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                title={showCurrentPassword ? "Hide password" : "Show password"}
+                                style={{
+                                    position: 'absolute',
+                                    right: '10px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    color: 'var(--text-muted)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    padding: '4px',
+                                }}
+                            >
+                                {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="form-group">
                         <label>New Password</label>
-                        <input
-                            type="password"
-                            required
-                            value={passwordData.new_password}
-                            onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
-                        />
+                        <div style={{ position: 'relative', width: '100%' }}>
+                            <input
+                                type={showNewPassword ? 'text' : 'password'}
+                                required
+                                autoComplete="new-password"
+                                value={passwordData.new_password}
+                                onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
+                                style={{ paddingRight: '40px', width: '100%' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowNewPassword(!showNewPassword)}
+                                title={showNewPassword ? "Hide password" : "Show password"}
+                                style={{
+                                    position: 'absolute',
+                                    right: '10px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    color: 'var(--text-muted)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    padding: '4px',
+                                }}
+                            >
+                                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="form-group">
                         <label>Confirm New Password</label>
-                        <input
-                            type="password"
-                            required
-                            value={passwordData.confirm_password}
-                            onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
-                        />
+                        <div style={{ position: 'relative', width: '100%' }}>
+                            <input
+                                type={showConfirmPassword ? 'text' : 'password'}
+                                required
+                                autoComplete="new-password"
+                                value={passwordData.confirm_password}
+                                onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
+                                style={{ paddingRight: '40px', width: '100%' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                title={showConfirmPassword ? "Hide password" : "Show password"}
+                                style={{
+                                    position: 'absolute',
+                                    right: '10px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    color: 'var(--text-muted)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    padding: '4px',
+                                }}
+                            >
+                                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit" className="btn-primary" disabled={loadingPassword}>
