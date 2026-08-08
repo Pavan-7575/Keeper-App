@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import {
     Trash2, Pin, Star, Archive, RotateCcw, Copy, CheckCircle2,
-    Circle, Bell, Tag, Edit3, Palette
+    Circle, Bell, Tag, Edit3, Palette, X
 } from 'lucide-react';
 import { useNotes } from '../context/NotesContext';
 import ReminderModal from './ReminderModal';
@@ -124,11 +125,14 @@ function Note({
             </div>
 
             {/* Edit Dialog */}
-            {isEditing && (
+            {isEditing && ReactDOM.createPortal(
                 <div className="modal-backdrop" onClick={() => setIsEditing(false)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
-                            <h2>Edit Note</h2>
+                            <h2><Edit3 size={20} color="var(--primary-color)" /> Edit Note</h2>
+                            <button type="button" className="icon-btn" onClick={() => setIsEditing(false)} title="Close">
+                                <X size={20} />
+                            </button>
                         </div>
                         <div className="auth-form">
                             <div className="form-group">
@@ -138,18 +142,24 @@ function Note({
                             <div className="form-group">
                                 <label>Content</label>
                                 <textarea
-                                    rows={4}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }}
+                                    rows={5}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none', resize: 'vertical' }}
                                     value={editContent}
                                     onChange={(e) => setEditContent(e.target.value)}
                                 />
                             </div>
-                            <button className="btn-primary" onClick={handleSaveEdit}>
-                                Save Changes
-                            </button>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+                                <button type="button" className="chip" onClick={() => setIsEditing(false)} style={{ padding: '8px 16px', fontWeight: 600 }}>
+                                    Cancel
+                                </button>
+                                <button type="button" className="btn-primary" onClick={handleSaveEdit} style={{ margin: 0, width: 'auto', padding: '10px 24px' }}>
+                                    Save Changes
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {/* Reminder Modal */}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { X, Bell, Volume2 } from 'lucide-react';
 import { playNotificationTone } from '../utils/audio';
 
@@ -25,12 +26,12 @@ function ReminderModal({ note, onClose, onSave }) {
         onClose();
     };
 
-    return (
+    return ReactDOM.createPortal(
         <div className="modal-backdrop" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                     <h2><Bell size={20} color="#f5ba13" /> Set Reminder</h2>
-                    <button className="icon-btn" onClick={onClose}><X size={20} /></button>
+                    <button type="button" className="icon-btn" onClick={onClose} title="Close"><X size={20} /></button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="auth-form">
@@ -76,12 +77,18 @@ function ReminderModal({ note, onClose, onSave }) {
                         </select>
                     </div>
 
-                    <button type="submit" className="btn-primary" style={{ marginTop: '16px' }}>
-                        Save Reminder
-                    </button>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+                        <button type="button" className="chip" onClick={onClose} style={{ padding: '8px 16px', fontWeight: 600 }}>
+                            Cancel
+                        </button>
+                        <button type="submit" className="btn-primary" style={{ margin: 0, width: 'auto', padding: '10px 24px' }}>
+                            Save Reminder
+                        </button>
+                    </div>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 
