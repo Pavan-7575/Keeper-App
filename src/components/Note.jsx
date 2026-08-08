@@ -173,6 +173,7 @@ function Note({
                     note={{ reminder_datetime, notification_sound: 'chime' }}
                     onClose={() => setShowReminderModal(false)}
                     onSave={(remData) => setReminder(id, remData)}
+                    onRemove={() => removeReminder(id)}
                 />
             )}
         </div>
