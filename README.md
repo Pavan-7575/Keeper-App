@@ -1,34 +1,59 @@
 # Keeper App - Enterprise Full-Stack Note Management System
 
-An enterprise-grade, full-stack production application built on top of the classic Keeper App. Features comprehensive JWT & OAuth2 authentication, PostgreSQL relational database storage, live audio reminders, notification sound selection, note categorization, tagging, searching, filtering, stats dashboard, profile management, and light/dark theme modes.
+An enterprise-grade, full-stack production application built on top of the classic Keeper App. Features comprehensive JWT & OAuth2 authentication (Google & Facebook), PostgreSQL relational database storage, live audio reminders with on-screen ringing alarms and snooze, 30-day automatic trash purge, note categorization, tagging, searching, filtering, stats dashboard, profile management, and glassmorphic light/dark theme modes.
+
+---
+
+## 📸 Screenshots Overview
+
+| Light Mode Dashboard | Dark Mode Dashboard |
+| :---: | :---: |
+| ![Dashboard Light](public/screenshots/dashboard-light.png) | ![Dashboard Dark](public/screenshots/dashboard-dark.png) |
+
+| Profile & Password Management | Authentication & Social OAuth |
+| :---: | :---: |
+| ![Profile Management](public/screenshots/profile-dark.png) | ![Login & OAuth](public/screenshots/login-dark.png) |
 
 ---
 
 ## 🚀 Key Features
 
-### 🔐 Authentication & Authorization
+### 🔐 Authentication & Security
 - **Multi-Method Login**: Login using **Email + Password** OR **Username + Password**.
-- **Social OAuth2 Integration**: Login & auto account creation via **Google** and **Facebook** powered by Passport.js.
+- **Social OAuth2 Integration**: 1-Click login & auto account creation via **Google** and **Facebook** powered by Passport.js.
+- **Password Visibility Toggle**: Interactive **Eye / EyeOff** toggle button to show or hide passwords on Login, Register, Reset Password, and Change Password forms.
+- **Autofill Protection**: Disabled automatic browser credential autofill to protect user privacy.
 - **JWT Token Management**: Short-lived Access Tokens (15m) + Secure HTTP-only Refresh Tokens (7d).
 - **Password Security**: Passwords hashed using **bcrypt** with 12 salt rounds.
 - **Complete Auth Flow**: Login, Register, Forgot Password, Reset Password with token link, Email Verification.
 - **User Data Isolation**: Logged-in users can only access their own private notes.
 
-### 📝 Notes & Management
+### 📝 Smart Notes & Management
 - **Rich Note Content**: Title, Content, Background Colors, Pin, Archive, Trash, Favorite, Mark as Done/Pending.
+- **Auto-Collapse & Auto-Save**: Clicking outside the "Take a note..." area auto-saves your note if text is entered, or collapses the form if empty. Includes a top-right **"✕"** cross button.
+- **Clean Note Duplication**: 1-click note duplication preserving original note titles without appending `(Copy)` text.
 - **Categories & Tags**: Group notes into custom user categories and tag with custom labels.
-- **Reminders & Web Audio Tones**: Set date and time reminders with customizable notification tones (*Chime*, *Bell*, *Digital Pulse*, *Gentle Wave*).
 - **Instant Search**: Search across note title, content, category name, or labels.
 - **Filters & Sorting**:
   - **Filters**: Total, Completed, Pending, Pinned, Favorites, Archived, Trash.
   - **Sorting**: Newest First, Oldest First, Alphabetical (A-Z), Reminder Date.
-- **Quick Operations**: Duplicate notes, restore from trash, edit in modal.
 
-### 🎨 Frontend UI & Modern Aesthetics
-- **Keeper Signature Theme**: Maintains the iconic yellow (`#f5ba13`) brand identity with sleek Material Design.
-- **Dark Mode / Light Mode**: Seamless theme toggling with CSS custom properties.
-- **Responsive Dashboard**: Stats overview cards displaying counts for completed, pending, pinned, archived, and favorited notes.
-- **Profile Management**: Update user display names, username, password, and upload custom profile pictures.
+### 🔔 Reminders & Live Alarms
+- **Date & Time Scheduling**: Schedule exact date & time reminders for notes.
+- **Web Audio API Synthesizer Tones**: Choose between 5 customizable notification sounds (*Chime*, *Bell*, *Digital*, *Alarm*, *Wave*).
+- **Native Desktop Notifications**: Automatically requests browser system notification permission (`Notification.requestPermission()`) for system popups.
+- **Live On-Screen Alarm Popup Modal**: Real-time checking (every 3s) pops up a live **Alarm Alert Window** when a reminder time is reached, complete with **Snooze (5m)** and **Dismiss Alarm** buttons.
+- **Easy Remove Reminder**: 1-click **"🗑️ Remove Reminder"** button inside the reminder modal.
+
+### 🧹 Automatic Trash Cleanup
+- **30-Day Auto-Purge Worker**: Background worker runs on server startup and every 12 hours to automatically permanently delete notes in Trash older than 30 days (`updated_at < NOW() - INTERVAL '30 days'`).
+- **Zero SQL Schema Alterations**: Utilizes existing database schema timestamps.
+
+### 🎨 Frontend UI & Glassmorphic Aesthetics
+- **Glassmorphic Modal System**: Full-screen blurred backdrop (`backdrop-filter: blur(8px)`, `z-index: 9999`) mounted at `document.body` level via `ReactDOM.createPortal`. Completely blocks background navigation clicks and prevents page crashes.
+- **High-Contrast Dark Mode Palette**: Customized dark-mode note card colors (`#1e2638`, `#332712`, `#163320`, `#132b3d`, `#3d1a24`, `#291b3b`) ensuring text is crisp, sharp, and 100% visible in Light & Dark modes.
+- **Responsive Dashboard**: Stats overview cards displaying counts for total, completed, pending, pinned, favorites, archived, and trash notes.
+- **Profile Management**: Update display name, username, password, and upload custom profile pictures with live preview.
 
 ### 🛡️ Security & Enterprise Best Practices
 - **PostgreSQL Database**: Parameterized queries using `node-postgres` (`pg`) to prevent SQL Injection.
@@ -72,7 +97,7 @@ Keeper App/
 │   │   └── errorHandler.js    # Express error handler
 │   ├── models/
 │   │   ├── User.js            # User DB Model (pg)
-│   │   ├── Note.js            # Note DB Model (pg)
+│   │   ├── Note.js            # Note DB Model (pg) with 30-day trash cleanup
 │   │   ├── Category.js
 │   │   ├── Reminder.js
 │   │   └── OAuth.js
@@ -89,9 +114,14 @@ Keeper App/
 │   │   └── responseUtils.js
 │   ├── uploads/               # User uploaded avatars
 │   ├── package.json
-│   └── server.js              # Main Express Server
+│   └── server.js              # Main Express Server & background workers
 ├── public/
-│   └── styles.css             # Theme tokens, dark mode & components CSS
+│   ├── screenshots/           # Application Screenshots
+│   │   ├── dashboard-light.png
+│   │   ├── dashboard-dark.png
+│   │   ├── profile-dark.png
+│   │   └── login-dark.png
+│   └── styles.css             # Theme tokens, dark mode & glassmorphic modal CSS
 ├── src/
 │   ├── components/
 │   │   ├── Auth/              # Login, Register, Forgot/Reset Password, Verify
@@ -99,18 +129,19 @@ Keeper App/
 │   │   ├── App.jsx            # Main React layout
 │   │   ├── Header.jsx
 │   │   ├── Footer.jsx
-│   │   ├── Note.jsx
-│   │   ├── CreateArea.jsx
+│   │   ├── Note.jsx           # Note card with Portal Edit dialog
+│   │   ├── CreateArea.jsx     # Note creator with auto-collapse & auto-save
 │   │   ├── DashboardStats.jsx
-│   │   └── ReminderModal.jsx
+│   │   └── ReminderModal.jsx  # Portal Reminder modal with sound tones
 │   ├── context/
 │   │   ├── AuthContext.jsx
 │   │   ├── ThemeContext.jsx
-│   │   └── NotesContext.jsx
+│   │   └── NotesContext.jsx   # Live 3s alarm checker & portal alarm popup
 │   ├── services/
 │   │   └── api.js             # API client with auto-token refresh
 │   ├── utils/
-│   │   └── audio.js           # Web Audio API Synthesizer
+│   │   ├── audio.js           # Web Audio API Synthesizer (Chime, Bell, Digital, Alarm, Wave)
+│   │   └── themeUtils.js      # High contrast light/dark mode color mapper
 │   └── main.jsx
 ├── .env                       # Environment variables
 ├── .env.example
@@ -148,7 +179,7 @@ JWT_EXPIRES_IN=15m
 JWT_REFRESH_SECRET=super_secret_keeper_refresh_key
 JWT_REFRESH_EXPIRES_IN=7d
 
-# OAuth Keys (Optional for local testing)
+# OAuth Keys
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 FACEBOOK_APP_ID=your_facebook_app_id
@@ -204,14 +235,3 @@ npm run dev
 2. Create App -> Setup Facebook Login.
 3. Add Valid OAuth Redirect URI: `http://localhost:5000/api/auth/facebook/callback`.
 4. Copy `App ID` and `App Secret` into `.env`.
-
----
-
-## 📷 Screenshots Overview
-
-*(Include screenshots of Dashboard, Note Grid, Dark Mode, Profile Page, Auth Modals here)*
-
----
-
-## 📄 License
-Licensed under the [MIT License](LICENSE).

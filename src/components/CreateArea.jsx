@@ -188,25 +188,6 @@ function CreateArea({ onAdd }) {
                                     <FolderPlus size={18} />
                                 </button>
                             </div>
-
-                            <button
-                                type="button"
-                                className="close-btn"
-                                onClick={closeForm}
-                                style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: 'var(--text-muted)',
-                                    fontWeight: 600,
-                                    fontSize: '0.85rem',
-                                    cursor: 'pointer',
-                                    padding: '4px 10px',
-                                    borderRadius: '4px',
-                                    marginRight: '40px',
-                                }}
-                            >
-                                Close
-                            </button>
                         </div>
 
                         {showNewCatInput && (
