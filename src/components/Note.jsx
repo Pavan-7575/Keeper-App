@@ -5,6 +5,8 @@ import {
     Circle, Bell, Tag, Edit3, Palette, X
 } from 'lucide-react';
 import { useNotes } from '../context/NotesContext';
+import { useTheme } from '../context/ThemeContext';
+import { getNoteCardStyle } from '../utils/themeUtils';
 import ReminderModal from './ReminderModal';
 
 function Note({
@@ -25,6 +27,7 @@ function Note({
     onEdit,
 }) {
     const { editNote, restoreNote, duplicateNote, setReminder, removeReminder } = useNotes();
+    const { darkMode } = useTheme();
     const [showReminderModal, setShowReminderModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editTitle, setEditTitle] = useState(title || '');
@@ -35,10 +38,12 @@ function Note({
         setIsEditing(false);
     };
 
+    const cardStyle = getNoteCardStyle(color, darkMode);
+
     return (
         <div
             className={`note-card ${is_pinned ? 'pinned' : ''} ${is_completed ? 'completed' : ''}`}
-            style={{ backgroundColor: color || '#ffffff' }}
+            style={cardStyle}
         >
             <div className="note-header">
                 <h1>{title}</h1>

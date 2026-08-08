@@ -18,6 +18,11 @@ function ReminderModal({ note, onClose, onSave }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!datetime) return;
+
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
         onSave({
             reminder_datetime: datetime,
             notification_sound: sound,
@@ -48,7 +53,7 @@ function ReminderModal({ note, onClose, onSave }) {
                     <div className="form-group">
                         <label>Notification Sound</label>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                            {['chime', 'bell', 'digital', 'wave'].map((snd) => (
+                            {['chime', 'bell', 'digital', 'alarm', 'wave'].map((snd) => (
                                 <button
                                     key={snd}
                                     type="button"

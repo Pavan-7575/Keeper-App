@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import ReactDOM from 'react-dom';
 import ApiClient from '../services/api';
 import { useAuth } from './AuthContext';
 import { playNotificationTone } from '../utils/audio';
+import { Bell } from 'lucide-react';
 
 const NotesContext = createContext();
 
@@ -24,6 +26,7 @@ export const NotesProvider = ({ children }) => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [loadingNotes, setLoadingNotes] = useState(false);
     const [triggeredReminders, setTriggeredReminders] = useState(new Set());
+    const [activeAlarm, setActiveAlarm] = useState(null);
 
     const loadNotes = useCallback(async () => {
         if (!user) return;
@@ -49,7 +52,7 @@ export const NotesProvider = ({ children }) => {
                 setCategories(catRes.data);
             }
         } catch (err) {
-            console.error('Failed to load notes:', err);
+            console.error('Failed to load notes data:', err);
         } finally {
             setLoadingNotes(false);
         }
@@ -59,7 +62,7 @@ export const NotesProvider = ({ children }) => {
         loadNotes();
     }, [loadNotes]);
 
-    // Live Audio Reminder Checker
+    // Live Audio & Screen Alarm Checker (every 3 seconds)
     useEffect(() => {
         if (!user || notes.length === 0) return;
 
@@ -72,19 +75,20 @@ export const NotesProvider = ({ children }) => {
 
                     // Play if within last 60 seconds and not already played
                     if (timeDiff >= 0 && timeDiff <= 60000 && !triggeredReminders.has(note.id)) {
-                        playNotificationTone(note.notification_sound || 'chime');
+                        playNotificationTone(note.notification_sound || 'alarm');
+                        setActiveAlarm(note);
                         setTriggeredReminders((prev) => new Set(prev).add(note.id));
 
-                        if (Notification.permission === 'granted') {
-                            new Notification(`Reminder: ${note.title || 'Keeper Note'}`, {
-                                body: note.content,
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            new Notification(`⏰ Reminder: ${note.title || 'Keeper Note'}`, {
+                                body: note.content || 'Your scheduled reminder alarm is ringing!',
                                 icon: '/favicon.ico',
                             });
                         }
                     }
                 }
             });
-        }, 15000);
+        }, 3000);
 
         return () => clearInterval(interval);
     }, [user, notes, triggeredReminders]);
@@ -209,6 +213,59 @@ export const NotesProvider = ({ children }) => {
             }}
         >
             {children}
+
+            {/* Live On-Screen Alarm Popup Modal */}
+            {activeAlarm && ReactDOM.createPortal(
+                <div className="modal-backdrop" style={{ zIndex: 99999 }}>
+                    <div className="modal-content" style={{ textAlign: 'center', maxWidth: '420px', padding: '32px 24px' }}>
+                        <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+                            <div style={{
+                                background: 'rgba(245, 186, 19, 0.15)',
+                                padding: '16px',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                <Bell size={40} color="#f5ba13" />
+                            </div>
+                        </div>
+                        <h2 style={{ fontSize: '1.35rem', fontWeight: 700, marginBottom: '8px' }}>
+                            ⏰ {activeAlarm.title || 'Reminder Alert!'}
+                        </h2>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '24px', lineHeight: 1.5 }}>
+                            {activeAlarm.content || 'Your scheduled reminder time has arrived.'}
+                        </p>
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                            <button
+                                type="button"
+                                className="chip"
+                                style={{ padding: '8px 16px', fontWeight: 600 }}
+                                onClick={() => {
+                                    const snoozeTime = new Date(Date.now() + 5 * 60 * 1000);
+                                    setReminder(activeAlarm.id, {
+                                        reminder_datetime: snoozeTime.toISOString(),
+                                        notification_sound: activeAlarm.notification_sound || 'alarm',
+                                        repeat_type: 'none',
+                                    });
+                                    setActiveAlarm(null);
+                                }}
+                            >
+                                Snooze (5m)
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-primary"
+                                style={{ margin: 0, width: 'auto', padding: '10px 24px' }}
+                                onClick={() => setActiveAlarm(null)}
+                            >
+                                Dismiss Alarm
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </NotesContext.Provider>
     );
 };

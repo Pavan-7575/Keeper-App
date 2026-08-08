@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Pin, Palette, Tag, FolderPlus, X } from 'lucide-react';
 import { useNotes } from '../context/NotesContext';
+import { useTheme } from '../context/ThemeContext';
+import { getNoteCardStyle } from '../utils/themeUtils';
 
 function CreateArea({ onAdd }) {
     const { categories, addCategory } = useNotes();
+    const { darkMode } = useTheme();
     const [isExpanded, setExpanded] = useState(false);
     const formRef = useRef(null);
     const [note, setNote] = useState({
@@ -110,7 +113,7 @@ function CreateArea({ onAdd }) {
 
     return (
         <div>
-            <form ref={formRef} className="create-note" style={{ backgroundColor: note.color }}>
+            <form ref={formRef} className="create-note" style={getNoteCardStyle(note.color, darkMode)}>
                 {isExpanded && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <input

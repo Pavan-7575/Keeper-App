@@ -44,6 +44,20 @@ export const playNotificationTone = (soundName = 'chime') => {
                 osc.start(now + offset);
                 osc.stop(now + offset + 0.1);
             });
+        } else if (soundName === 'alarm') {
+            // Loud Alarm Ring (3 rapid double-beeps)
+            [0, 0.15, 0.4, 0.55, 0.8, 0.95].forEach((offset) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(950, now + offset);
+                gain.gain.setValueAtTime(0.25, now + offset);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.12);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now + offset);
+                osc.stop(now + offset + 0.12);
+            });
         } else if (soundName === 'wave') {
             // Gentle Wave Rise
             const osc = ctx.createOscillator();

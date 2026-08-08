@@ -279,7 +279,7 @@ form.create-note textarea {
   padding: 6px;
   outline: none;
   font-size: 1.05rem;
-  color: var(--text-color);
+  color: inherit;
   resize: none;
 }
 
@@ -405,14 +405,14 @@ form.create-note button.add-btn:hover {
 .note-card h1 {
   font-size: 1.15rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: inherit;
   line-height: 1.3;
 }
 
 .note-card p {
   font-size: 0.95rem;
   line-height: 1.5;
-  color: var(--text-color);
+  color: inherit;
   white-space: pre-wrap;
   margin-bottom: 14px;
 }
