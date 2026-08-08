@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { Plus, Pin, Palette, Tag, FolderPlus } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Pin, Palette, Tag, FolderPlus, X } from 'lucide-react';
 import { useNotes } from '../context/NotesContext';
 
 function CreateArea({ onAdd }) {
     const { categories, addCategory } = useNotes();
     const [isExpanded, setExpanded] = useState(false);
+    const formRef = useRef(null);
     const [note, setNote] = useState({
         title: '',
         content: '',
@@ -26,6 +27,23 @@ function CreateArea({ onAdd }) {
         '#e2d9f3', // Purple
     ];
 
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (formRef.current && !formRef.current.contains(event.target)) {
+                if (isExpanded) {
+                    if (note.title.trim() || note.content.trim()) {
+                        saveNote();
+                    } else {
+                        closeForm();
+                    }
+                }
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isExpanded, note]);
+
     function handleChange(event) {
         const { name, value } = event.target;
         setNote((prevNote) => ({
@@ -36,6 +54,20 @@ function CreateArea({ onAdd }) {
 
     function expand() {
         setExpanded(true);
+    }
+
+    function closeForm() {
+        setNote({
+            title: '',
+            content: '',
+            color: '#ffffff',
+            is_pinned: false,
+            category_id: '',
+            labelsStr: '',
+        });
+        setExpanded(false);
+        setShowColors(false);
+        setShowNewCatInput(false);
     }
 
     async function handleAddCategory(e) {
@@ -49,9 +81,11 @@ function CreateArea({ onAdd }) {
         }
     }
 
-    function submitNote(event) {
-        event.preventDefault();
-        if (!note.title.trim() && !note.content.trim()) return;
+    function saveNote() {
+        if (!note.title.trim() && !note.content.trim()) {
+            closeForm();
+            return;
+        }
 
         const labels = note.labelsStr
             ? note.labelsStr.split(',').map((l) => l.trim()).filter((l) => l.length > 0)
@@ -66,21 +100,17 @@ function CreateArea({ onAdd }) {
             labels,
         });
 
-        setNote({
-            title: '',
-            content: '',
-            color: '#ffffff',
-            is_pinned: false,
-            category_id: '',
-            labelsStr: '',
-        });
-        setExpanded(false);
-        setShowColors(false);
+        closeForm();
+    }
+
+    function submitNote(event) {
+        event.preventDefault();
+        saveNote();
     }
 
     return (
         <div>
-            <form className="create-note" style={{ backgroundColor: note.color }}>
+            <form ref={formRef} className="create-note" style={{ backgroundColor: note.color }}>
                 {isExpanded && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <input
@@ -89,14 +119,24 @@ function CreateArea({ onAdd }) {
                             value={note.title}
                             placeholder="Title"
                         />
-                        <button
-                            type="button"
-                            className="icon-btn"
-                            onClick={() => setNote((prev) => ({ ...prev, is_pinned: !prev.is_pinned }))}
-                            title={note.is_pinned ? 'Unpin Note' : 'Pin Note'}
-                        >
-                            <Pin size={20} color={note.is_pinned ? '#f5ba13' : 'currentColor'} />
-                        </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <button
+                                type="button"
+                                className="icon-btn"
+                                onClick={() => setNote((prev) => ({ ...prev, is_pinned: !prev.is_pinned }))}
+                                title={note.is_pinned ? 'Unpin Note' : 'Pin Note'}
+                            >
+                                <Pin size={20} color={note.is_pinned ? '#f5ba13' : 'currentColor'} />
+                            </button>
+                            <button
+                                type="button"
+                                className="icon-btn"
+                                onClick={closeForm}
+                                title="Close"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
                     </div>
                 )}
 
@@ -145,6 +185,25 @@ function CreateArea({ onAdd }) {
                                     <FolderPlus size={18} />
                                 </button>
                             </div>
+
+                            <button
+                                type="button"
+                                className="close-btn"
+                                onClick={closeForm}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: 'var(--text-muted)',
+                                    fontWeight: 600,
+                                    fontSize: '0.85rem',
+                                    cursor: 'pointer',
+                                    padding: '4px 10px',
+                                    borderRadius: '4px',
+                                    marginRight: '40px',
+                                }}
+                            >
+                                Close
+                            </button>
                         </div>
 
                         {showNewCatInput && (
