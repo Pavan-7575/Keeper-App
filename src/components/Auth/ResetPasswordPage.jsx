@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ApiClient from '../../services/api';
 import { Eye, EyeOff } from 'lucide-react';
 
-function ResetPasswordPage({ setCurrentTab }) {
+function ResetPasswordPage() {
+    const navigate = useNavigate();
     const [token, setToken] = useState(() => new URLSearchParams(window.location.search).get('token') || '');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -27,8 +29,7 @@ function ResetPasswordPage({ setCurrentTab }) {
             if (res.success) {
                 setMessage('Password reset successful! Redirecting to login...');
                 setTimeout(() => {
-                    window.history.replaceState({}, document.title, '/login');
-                    setCurrentTab('login');
+                    navigate('/login');
                 }, 1500);
             }
         } catch (err) {
@@ -140,3 +141,4 @@ function ResetPasswordPage({ setCurrentTab }) {
 }
 
 export default ResetPasswordPage;
+

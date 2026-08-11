@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../services/api';
 import { LogIn, Mail, Lock, Globe, Eye, EyeOff } from 'lucide-react';
 
-function LoginPage({ setCurrentTab }) {
+function LoginPage() {
+    const navigate = useNavigate();
     const { login } = useAuth();
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
@@ -37,7 +39,7 @@ function LoginPage({ setCurrentTab }) {
 
         try {
             await login({ identifier, password });
-            setCurrentTab('notes');
+            navigate('/');
         } catch (err) {
             setError(err.message || 'Login failed. Please check your credentials.');
         } finally {
@@ -70,12 +72,12 @@ function LoginPage({ setCurrentTab }) {
                 <div className="form-group">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <label>Password</label>
-                        <span
-                            style={{ fontSize: '0.8rem', color: 'var(--primary-color)', cursor: 'pointer' }}
-                            onClick={() => setCurrentTab('forgot-password')}
+                        <Link
+                            to="/forgot-password"
+                            style={{ fontSize: '0.8rem', color: 'var(--primary-color)', textDecoration: 'none' }}
                         >
                             Forgot?
-                        </span>
+                        </Link>
                     </div>
                     <div style={{ position: 'relative', width: '100%' }}>
                         <input
@@ -129,15 +131,16 @@ function LoginPage({ setCurrentTab }) {
 
             <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
                 Don't have an account?{' '}
-                <span
-                    style={{ color: 'var(--primary-color)', fontWeight: 'bold', cursor: 'pointer' }}
-                    onClick={() => setCurrentTab('register')}
+                <Link
+                    to="/register"
+                    style={{ color: 'var(--primary-color)', fontWeight: 'bold', textDecoration: 'none' }}
                 >
                     Create Account
-                </span>
+                </Link>
             </p>
         </div>
     );
 }
 
 export default LoginPage;
+

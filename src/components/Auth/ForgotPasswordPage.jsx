@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import ApiClient from '../../services/api';
 
-function ForgotPasswordPage({ setCurrentTab }) {
+function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -54,15 +55,16 @@ function ForgotPasswordPage({ setCurrentTab }) {
 
             <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
                 Remembered your password?{' '}
-                <span
-                    style={{ color: 'var(--primary-color)', fontWeight: 'bold', cursor: 'pointer' }}
-                    onClick={() => setCurrentTab('login')}
+                <Link
+                    to="/login"
+                    style={{ color: 'var(--primary-color)', fontWeight: 'bold', textDecoration: 'none' }}
                 >
                     Back to Login
-                </span>
+                </Link>
             </p>
         </div>
     );
 }
 
 export default ForgotPasswordPage;
+

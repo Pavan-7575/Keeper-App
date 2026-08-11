@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
 
-function RegisterPage({ setCurrentTab }) {
+function RegisterPage() {
+    const navigate = useNavigate();
     const { register } = useAuth();
     const [formData, setFormData] = useState({
         first_name: '',
@@ -51,7 +53,7 @@ function RegisterPage({ setCurrentTab }) {
             if (res.success) {
                 setSuccess('Registration successful! Redirecting to Sign In page...');
                 setTimeout(() => {
-                    setCurrentTab('login');
+                    navigate('/login');
                 }, 1500);
             }
         } catch (err) {
@@ -173,15 +175,16 @@ function RegisterPage({ setCurrentTab }) {
 
             <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
                 Already have an account?{' '}
-                <span
-                    style={{ color: 'var(--primary-color)', fontWeight: 'bold', cursor: 'pointer' }}
-                    onClick={() => setCurrentTab('login')}
+                <Link
+                    to="/login"
+                    style={{ color: 'var(--primary-color)', fontWeight: 'bold', textDecoration: 'none' }}
                 >
                     Sign In
-                </span>
+                </Link>
             </p>
         </div>
     );
 }
 
 export default RegisterPage;
+

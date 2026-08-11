@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ApiClient from '../../services/api';
 import { CheckCircle2, XCircle } from 'lucide-react';
 
-function VerifyEmailPage({ setCurrentTab }) {
+function VerifyEmailPage() {
+    const navigate = useNavigate();
     const [status, setStatus] = useState('verifying'); // verifying, success, error
     const [message, setMessage] = useState('Verifying your email token...');
 
@@ -28,8 +30,7 @@ function VerifyEmailPage({ setCurrentTab }) {
     }, []);
 
     const goToLogin = () => {
-        window.history.replaceState({}, document.title, '/login');
-        setCurrentTab('login');
+        navigate('/login');
     };
 
     return (
@@ -64,3 +65,4 @@ function VerifyEmailPage({ setCurrentTab }) {
 }
 
 export default VerifyEmailPage;
+

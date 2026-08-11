@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNotes } from '../context/NotesContext';
-import { FileText, CheckCircle2, Clock, Pin, Archive, Star, Trash2 } from 'lucide-react';
+import { FileText, CheckCircle2, Clock, Pin, Archive, Star, Trash2, Filter } from 'lucide-react';
 
 function DashboardStats() {
     const { stats, filter, setFilter } = useNotes();
@@ -16,21 +16,45 @@ function DashboardStats() {
     ];
 
     return (
-        <div className="stats-grid">
-            {cards.map((c) => (
-                <div
-                    key={c.key}
-                    className={`stat-card ${filter === c.key ? 'active' : ''}`}
-                    onClick={() => setFilter(c.key)}
+        <div className="dashboard-stats-container">
+            {/* Mobile Dropdown View (< 540px) */}
+            <div className="mobile-filter-dropdown">
+                <label className="mobile-filter-label">
+                    <Filter size={16} color="var(--primary-color)" /> Filter View:
+                </label>
+                <select
+                    className="mobile-select"
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
                 >
-                    <div className="stat-number">{c.count}</div>
-                    <div className="stat-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                        {c.icon} {c.label}
+                    {cards.map((c) => (
+                        <option key={c.key} value={c.key}>
+                            {c.label} ({c.count})
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            {/* Tablet & Desktop Tab View (>= 540px) */}
+            <div className="stats-grid">
+                {cards.map((c) => (
+                    <div
+                        key={c.key}
+                        className={`stat-card ${filter === c.key ? 'active' : ''}`}
+                        onClick={() => setFilter(c.key)}
+                    >
+                        <div className="stat-number">{c.count}</div>
+                        <div className="stat-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                            {c.icon} {c.label}
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 }
 
 export default DashboardStats;
+
+
+
