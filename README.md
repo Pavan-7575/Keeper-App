@@ -222,6 +222,46 @@ npm run dev
 
 ---
 
+## 🐳 Docker Setup & Running with Docker Compose
+
+Keeper App is fully containerized using Docker and Docker Compose for effortless 1-command deployment including **React (Nginx)** and **Express Node.js Backend**, seamlessly connecting to your PostgreSQL database and Google/Facebook OAuth configuration.
+
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running on your system.
+
+### Quick Start with Docker Compose
+
+1. **Configure Environment**: Ensure your root `.env` file contains your database credentials and OAuth keys (see `.env.example`).
+
+2. **Build & launch containers**:
+   ```bash
+   docker compose up --build -d
+   ```
+
+3. **Verify services are running**:
+   ```bash
+   docker compose ps
+   ```
+   You will see 2 active containers:
+   - `keeper_backend` (Express API Server on port 5000, connected to PostgreSQL via `host.docker.internal`)
+   - `keeper_frontend` (Vite React App served via Nginx on port 5173 with API reverse proxy)
+
+4. **Access the application**:
+   - **Frontend App**: Open [http://localhost:5173](http://localhost:5173)
+   - **Backend API Health Check**: Open [http://localhost:5000](http://localhost:5000)
+
+5. **Useful Docker Commands**:
+   - **View Live Backend Logs**:
+     ```bash
+     docker compose logs -f backend
+     ```
+   - **Stop Container Stack**:
+     ```bash
+     docker compose down
+     ```
+
+---
+
 ## 🔑 OAuth Setup Guide
 
 ### Google OAuth2
@@ -235,3 +275,4 @@ npm run dev
 2. Create App -> Setup Facebook Login.
 3. Add Valid OAuth Redirect URI: `http://localhost:5000/api/auth/facebook/callback`.
 4. Copy `App ID` and `App Secret` into `.env`.
+
