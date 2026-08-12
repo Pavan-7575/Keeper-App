@@ -60,6 +60,11 @@ An enterprise-grade, full-stack production application built on top of the class
 - **API Security**: Express Rate Limiter, Helmet headers, CORS policies, Cookie Parser, Express Validator input sanitization.
 - **MVC Architecture**: Backend clean separation into Controllers, Models, Routes, Middlewares, Config, Database, Services, Utils.
 
+### 🐳 Docker & Containerization
+- **1-Command Deployment**: Full multi-container orchestration (`docker compose up --build -d`).
+- **Nginx Web Server**: Multi-stage Vite React build served with high-performance Nginx and built-in API reverse proxy.
+- **Local & Container DB Support**: Seamless host database bridge (`host.docker.internal`) sharing PostgreSQL state between Docker and host dev environment.
+
 ---
 
 ## 🛠️ Tech Stack
@@ -68,6 +73,7 @@ An enterprise-grade, full-stack production application built on top of the class
 - **Backend**: Node.js, Express.js.
 - **Database**: PostgreSQL (node-postgres `pg` pool).
 - **Authentication**: JWT, bcrypt, Passport.js (Google & Facebook OAuth2).
+- **Containerization & Deployment**: Docker, Docker Compose, Nginx Reverse Proxy.
 - **Security & Utils**: Helmet, CORS, Morgan, Express Rate Limit, Express Validator, Multer, Nodemailer, Cookie Parser.
 
 ---
@@ -113,6 +119,8 @@ Keeper App/
 │   │   ├── jwtUtils.js
 │   │   └── responseUtils.js
 │   ├── uploads/               # User uploaded avatars
+│   ├── .dockerignore          # Docker ignore rules for backend
+│   ├── Dockerfile             # Express Node.js backend Dockerfile
 │   ├── package.json
 │   └── server.js              # Main Express Server & background workers
 ├── public/
@@ -143,9 +151,13 @@ Keeper App/
 │   │   ├── audio.js           # Web Audio API Synthesizer (Chime, Bell, Digital, Alarm, Wave)
 │   │   └── themeUtils.js      # High contrast light/dark mode color mapper
 │   └── main.jsx
+├── .dockerignore              # Docker ignore rules for frontend
 ├── .env                       # Environment variables
 ├── .env.example
 ├── .gitignore
+├── docker-compose.yml         # Multi-container orchestration (Backend + Frontend)
+├── Dockerfile                 # Multi-stage Vite React frontend Dockerfile
+├── nginx.conf                 # Nginx web server & API reverse proxy configuration
 ├── package.json
 └── README.md
 ```
