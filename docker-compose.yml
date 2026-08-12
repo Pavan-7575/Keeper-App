@@ -1,4 +1,23 @@
 services:
+  # PostgreSQL Database Container
+  postgres:
+    image: postgres:16-alpine
+    container_name: keeper_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${PGUSER:-postgres}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-postgres}
+      POSTGRES_DB: ${PGDATABASE:-keeper_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER:-postgres} -d ${PGDATABASE:-keeper_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   # Express Node.js Backend Container
   backend:
     build:
@@ -6,6 +25,9 @@ services:
       dockerfile: Dockerfile
     container_name: keeper_backend
     restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "5000:5000"
     extra_hosts:
@@ -17,7 +39,7 @@ services:
       NODE_ENV: production
       CLIENT_URL: http://localhost:5173
       BACKEND_URL: http://localhost:5000
-      PGHOST: host.docker.internal
+      PGHOST: ${PGHOST:-postgres}
       PGPORT: ${PGPORT:-5432}
       PGUSER: ${PGUSER:-postgres}
       PGPASSWORD: ${PGPASSWORD:-postgres}
@@ -51,6 +73,8 @@ services:
       - "5173:80"
 
 volumes:
+  postgres_data:
+    driver: local
   backend_uploads:
     driver: local
 
