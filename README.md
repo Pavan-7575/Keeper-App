@@ -236,16 +236,16 @@ npm run dev
 
 ## 🐳 Docker Setup & Running with Docker Compose
 
-Keeper App is fully containerized using Docker and Docker Compose for effortless 1-command deployment including **React (Nginx)** and **Express Node.js Backend**, seamlessly connecting to your PostgreSQL database and Google/Facebook OAuth configuration.
+Keeper App is fully containerized using Docker and Docker Compose for effortless 1-command deployment including **React (Nginx)**, **Express Node.js Backend**, and **PostgreSQL Database** with persistent volume storage.
 
 ### Prerequisites
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running on your system.
 
 ### Quick Start with Docker Compose
 
-1. **Configure Environment**: Ensure your root `.env` file contains your database credentials and OAuth keys (see `.env.example`).
+1. **Configure Environment (Optional)**: Set any custom OAuth keys or email settings in `.env` (see `.env.example`). Sensible defaults are automatically provided.
 
-2. **Build & launch containers**:
+2. **Build & launch all containers**:
    ```bash
    docker compose up --build -d
    ```
@@ -254,8 +254,9 @@ Keeper App is fully containerized using Docker and Docker Compose for effortless
    ```bash
    docker compose ps
    ```
-   You will see 2 active containers:
-   - `keeper_backend` (Express API Server on port 5000, connected to PostgreSQL via `host.docker.internal`)
+   You will see 3 active containers:
+   - `keeper_postgres` (PostgreSQL 16 Database on port 5432)
+   - `keeper_backend` (Express API Server on port 5000 with auto database migration)
    - `keeper_frontend` (Vite React App served via Nginx on port 5173 with API reverse proxy)
 
 4. **Access the application**:
@@ -270,6 +271,10 @@ Keeper App is fully containerized using Docker and Docker Compose for effortless
    - **Stop Container Stack**:
      ```bash
      docker compose down
+     ```
+   - **Stop & Reset Persistent Database**:
+     ```bash
+     docker compose down -v
      ```
 
 ---

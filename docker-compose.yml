@@ -30,8 +30,6 @@ services:
         condition: service_healthy
     ports:
       - "5000:5000"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     env_file:
       - .env
     environment:
@@ -39,7 +37,7 @@ services:
       NODE_ENV: production
       CLIENT_URL: http://localhost:5173
       BACKEND_URL: http://localhost:5000
-      PGHOST: ${PGHOST:-postgres}
+      PGHOST: postgres
       PGPORT: ${PGPORT:-5432}
       PGUSER: ${PGUSER:-postgres}
       PGPASSWORD: ${PGPASSWORD:-postgres}
